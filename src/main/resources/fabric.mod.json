@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "id": "garfield",
+  "version": "${version}",
+  "name": "Garfield",
+  "description": "Garfield Liquid Glass main menu visuals.",
+  "authors": ["Garfield"],
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "ru.garfield.Garfield"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.1",
+    "minecraft": "~1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}
