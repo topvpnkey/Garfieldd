@@ -1,121 +1,83 @@
-package ru.garfield;
-
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.text.Text;
-
-public class GarfieldScreen extends Screen {
-
-    private String tab = "VISUALS";
-
-    public GarfieldScreen() {
-        super(Text.literal("GARFIELD"));
-    }
-
-    @Override
-    protected void init() {
-        clearChildren();
-
-        int centerX = width / 2;
-        int centerY = height / 2;
-
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("VISUALS"),
-                b -> {
-                    tab = "VISUALS";
-                    clearAndInit();
-                }
-        ).dimensions(centerX - 150, centerY - 65, 72, 20).build());
-
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("THEME"),
-                b -> {
-                    tab = "THEME";
-                    clearAndInit();
-                }
-        ).dimensions(centerX - 74, centerY - 65, 72, 20).build());
-
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("ANIMATIONS"),
-                b -> {
-                    tab = "ANIMATIONS";
-                    clearAndInit();
-                }
-        ).dimensions(centerX + 2, centerY - 65, 88, 20).build());
-
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("SETTINGS"),
-                b -> {
-                    tab = "SETTINGS";
-                    clearAndInit();
-                }
-        ).dimensions(centerX + 94, centerY - 65, 72, 20).build());
-
-        if (tab.equals("VISUALS")) {
-            addDrawableChild(ButtonWidget.builder(
-                    Text.literal("Liquid Glass: ON"),
-                    b -> b.setMessage(Text.literal(
-                            b.getMessage().getString().endsWith("ON")
-                                    ? "Liquid Glass: OFF"
-                                    : "Liquid Glass: ON"
-                    ))
-            ).dimensions(centerX - 100, centerY - 5, 200, 20).build());
-        }
-
-        addDrawableChild(ButtonWidget.builder(
-                Text.literal("CLOSE"),
-                b -> close()
-        ).dimensions(centerX - 100, centerY + 55, 200, 20).build());
-    }
-
-    @Override
+@Override
     public void render(
             DrawContext context,
             int mouseX,
             int mouseY,
             float delta
     ) {
-        // Dark background
-        context.fill(0, 0, width, height, 0xD908101C);
+        int background = 0xD908101C;
+        int panel = 0xDD172536;
+        int accent = 0xFFFFA500;
+        int titleColor = 0xFFFFB52E;
+
+        if (theme == 1) {
+            background = 0xCDEAF4FA;
+            panel = 0xDDF5FAFF;
+            accent = 0xFF4A9FE8;
+            titleColor = 0xFF2376B8;
+        } else if (theme == 2) {
+            background = 0xD910081D;
+            panel = 0xDD251438;
+
+            float hue = (System.currentTimeMillis() % 6000L) / 6000.0f;
+            accent = java.awt.Color.HSBtoRGB(hue, 0.8f, 1.0f) | 0xFF000000;
+            titleColor = accent;
+        }
+
+        context.fill(0, 0, width, height, background);
 
         int cx = width / 2;
         int cy = height / 2;
+        int panelWidth = Math.min(420, width - 20);
 
-        // Outer glass panel
+        int left = cx - panelWidth / 2;
+        int right = cx + panelWidth / 2;
+
         context.fill(
-                cx - 180, cy - 100,
-                cx + 180, cy + 100,
-                0xBB172536
+                left, cy - 100,
+                right, cy + 100,
+                panel
         );
 
-        // Glass highlight
         context.fill(
-                cx - 178, cy - 98,
-                cx + 178, cy - 96,
-                0x55FFFFFF
+                left, cy - 100,
+                left + 3, cy + 100,
+                accent
         );
 
-        // Orange accent
-        context.fill(
-                cx - 180, cy - 100,
-                cx - 176, cy + 100,
-                0xFFFFA500
-        );
+        if (glass) {
+            context.fill(
+                    left + 4, cy - 98,
+                    right - 2, cy - 96,
+                    0x44FFFFFF
+            );
 
-        // Logo
+            context.fill(
+                    left + 8, cy - 90,
+                    right - 8, cy - 89,
+                    0x22FFFFFF
+            );
+        }
+
         context.drawCenteredTextWithShadow(
                 textRenderer,
                 Text.literal("GARFIELD"),
-                cx, cy - 88,
-                0xFFFFA500
+                cx, cy - 89,
+                titleColor
         );
 
         context.drawCenteredTextWithShadow(
                 textRenderer,
-                Text.literal(tab),
-                cx, cy + 30,
-                0xFFFFFFFF
+                Text.literal("ULTIMATE  /  LIQUID GLASS"),
+                cx, cy - 78,
+                0xFFE0E7F0
+        );
+
+        context.drawCenteredTextWithShadow(
+                textRenderer,
+                Text.literal(TABS[selectedTab]),
+                cx, cy + 32,
+                accent
         );
 
         super.render(context, mouseX, mouseY, delta);
