@@ -1,73 +1,108 @@
-if (theme == 1) {
+package ru.garfield;
+
+import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.text.Text;
+
+public class GarfieldScreen extends Screen {
+
+    private int theme = 0;
+
+    private final String[] themes = {
+        "DARK GLASS",
+        "APPLE GLASS",
+        "RGB GLASS"
+    };
+
+    public GarfieldScreen() {
+        super(Text.literal("GARFIELD"));
+    }
+
+    @Override
+    protected void init() {
+        int cx = width / 2;
+        int cy = height / 2;
+
+        addDrawableChild(ButtonWidget.builder(
+            Text.literal("THEME: " + themes[theme]),
+            button -> {
+                theme = (theme + 1) % themes.length;
+                button.setMessage(
+                    Text.literal("THEME: " + themes[theme])
+                );
+            }
+        ).dimensions(cx - 100, cy - 10, 200, 20).build());
+
+        addDrawableChild(ButtonWidget.builder(
+            Text.literal("CLOSE"),
+            button -> close()
+        ).dimensions(cx - 100, cy + 20, 200, 20).build());
+    }
+
+    @Override
+    public void render(
+        DrawContext context,
+        int mouseX,
+        int mouseY,
+        float delta
+    ) {
+        int background = 0xD908101C;
+        int panel = 0xDD172536;
+        int accent = 0xFFFFA500;
+
+        if (theme == 1) {
             background = 0xCDEAF4FA;
             panel = 0xDDF5FAFF;
             accent = 0xFF4A9FE8;
-            titleColor = 0xFF2376B8;
         } else if (theme == 2) {
             background = 0xD910081D;
             panel = 0xDD251438;
-
-            float hue =
-                (System.currentTimeMillis() % 6000L) / 6000.0f;
-
-            int rgb = java.awt.Color.HSBtoRGB(hue, 0.8f, 1.0f);
-            accent = 0xFF000000 | (rgb & 0x00FFFFFF);
-            titleColor = accent;
+            long time = System.currentTimeMillis();
+            int step = (int) ((time / 20) % 360);
+            int r = (int) (127 + 127 * Math.sin(step * Math.PI / 180));
+            int g = (int) (127 + 127 * Math.sin((step + 120) * Math.PI / 180));
+            int b = (int) (127 + 127 * Math.sin((step + 240) * Math.PI / 180));
+            accent = 0xFF000000 | (r << 16) | (g << 8) | b;
         }
 
         context.fill(0, 0, width, height, background);
 
         int cx = width / 2;
         int cy = height / 2;
-        int panelWidth = Math.min(420, width - 20);
-        int left = cx - panelWidth / 2;
-        int right = cx + panelWidth / 2;
 
         context.fill(
-            left, cy - 100,
-            right, cy + 100,
+            cx - 130, cy - 65,
+            cx + 130, cy + 65,
             panel
         );
 
         context.fill(
-            left, cy - 100,
-            left + 3, cy + 100,
+            cx - 130, cy - 65,
+            cx - 126, cy + 65,
             accent
         );
 
-        if (glass) {
-            context.fill(
-                left + 4, cy - 98,
-                right - 2, cy - 96,
-                0x44FFFFFF
-            );
-
-            context.fill(
-                left + 8, cy - 90,
-                right - 8, cy - 89,
-                0x22FFFFFF
-            );
-        }
+        context.fill(
+            cx - 126, cy - 63,
+            cx + 128, cy - 61,
+            0x55FFFFFF
+        );
 
         context.drawCenteredTextWithShadow(
             textRenderer,
             Text.literal("GARFIELD"),
-            cx, cy - 89,
-            titleColor
-        );
-
-        context.drawCenteredTextWithShadow(
-            textRenderer,
-            Text.literal("ULTIMATE / LIQUID GLASS"),
-            cx, cy - 78,
-            0xFFE0E7F0
-        );
-
-        context.drawCenteredTextWithShadow(
-            textRenderer,
-            Text.literal(tabs[selectedTab]),
-            cx, cy + 32,
+            cx,
+            cy - 48,
             accent
+        );
+
+        context.drawCenteredTextWithShadow(
+            textRenderer,
+            Text.literal("LIQUID GLASS"),
+            cx,
+            cy - 32,
+            0xFFFFFFFF
         );
 
         super.render(context, mouseX, mouseY, delta);
